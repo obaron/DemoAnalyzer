@@ -23,6 +23,9 @@ process.source = cms.Source("PoolSource",
 process.demo = cms.EDAnalyzer('DemoAnalyzer',
            minTracks = cms.untracked.uint32(1000)
          )
+process.TFileService = cms.Service("TFileService",
+                                       fileName = cms.string('histodemo.root')
+                                   )
 
 
 process.p = cms.Path(process.demo)

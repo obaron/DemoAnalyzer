@@ -31,6 +31,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+//Histogram Headers
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TH1.h"
+
 //
 // class declaration
 //
@@ -55,6 +60,7 @@ class DemoAnalyzer : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 	  unsigned int minTracks_;
+	TH1D *demohisto; //declare histogram
 };
 
 //
@@ -74,6 +80,9 @@ minTracks_(iConfig.getUntrackedParameter<unsigned int>("minTracks",0))
 	
    //now do what ever initialization is needed
 
+   edm::Service<TFileService> fs;
+   demohisto = fs->make<TH1D>("tracks" , "Tracks" , 100 , 0 , 5000 );
+//^Initialize. First invoking the TFileService, and then defining a TH1D.
 }
 
 
@@ -99,9 +108,11 @@ Handle<reco::TrackCollection> tracks;
 iEvent.getByLabel("generalTracks", tracks); 
 //LogInfo("Demo") << "number of tracks "<<tracks->size(); //replaced by if statement lines below
 
+demohisto->Fill(tracks->size()); //Fill Histogram
 if( minTracks_ <= tracks->size() ) {
    LogInfo("Demo") << "number of tracks "<<tracks->size();
 }
+
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
