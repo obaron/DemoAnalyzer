@@ -28,6 +28,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 // class declaration
 //
@@ -51,6 +54,7 @@ class DemoAnalyzer : public edm::EDAnalyzer {
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
+	  unsigned int minTracks_;
 };
 
 //
@@ -64,9 +68,10 @@ class DemoAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& iConfig)
-
+DemoAnalyzer::DemoAnalyzer(const edm::ParameterSet& iConfig) :
+minTracks_(iConfig.getUntrackedParameter<unsigned int>("minTracks",0))
 {
+	
    //now do what ever initialization is needed
 
 }
@@ -90,8 +95,13 @@ void
 DemoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+Handle<reco::TrackCollection> tracks;
+iEvent.getByLabel("generalTracks", tracks); 
+//LogInfo("Demo") << "number of tracks "<<tracks->size(); //replaced by if statement lines below
 
-
+if( minTracks_ <= tracks->size() ) {
+   LogInfo("Demo") << "number of tracks "<<tracks->size();
+}
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
