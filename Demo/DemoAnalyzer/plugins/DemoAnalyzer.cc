@@ -36,6 +36,12 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
 
+//Jet Headers 
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 //
 // class declaration
 //
@@ -61,6 +67,7 @@ class DemoAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
 	  unsigned int minTracks_;
 	TH1D *demohisto; //declare histogram
+	TH1D *ak5PFjets; //declare histogram
 };
 
 //
@@ -82,6 +89,7 @@ minTracks_(iConfig.getUntrackedParameter<unsigned int>("minTracks",0))
 
    edm::Service<TFileService> fs;
    demohisto = fs->make<TH1D>("tracks" , "Tracks" , 100 , 0 , 5000 );
+   ak5PFjets = fs->make<TH1D>("akPF5jets" , "PF5jets" , 100 , 0 , 500 );
 //^Initialize. First invoking the TFileService, and then defining a TH1D.
 }
 
@@ -108,7 +116,19 @@ Handle<reco::TrackCollection> tracks;
 iEvent.getByLabel("generalTracks", tracks); 
 //LogInfo("Demo") << "number of tracks "<<tracks->size(); //replaced by if statement lines below
 
+Handle<reco::PFJetCollection> chhad;
+iEvent.getByLabel("chargedHadronMultiplicity", chhad);
+ 	
+edm::Handle<reco::PFJetCollection> pfjetH;
+iEvent.getByLabel("ak5PFJets", pfjetH);
+for ( reco::PFJetCollection::const_iterator jet = pfjetH->begin(); jet != pfjetH->end(); ++jet ) {
+    double pt = jet->pt();
+	ak5PFjets->Fill(pt);
+}
+	
+	
 demohisto->Fill(tracks->size()); //Fill Histogram
+
 if( minTracks_ <= tracks->size() ) {
    LogInfo("Demo") << "number of tracks "<<tracks->size();
 }
